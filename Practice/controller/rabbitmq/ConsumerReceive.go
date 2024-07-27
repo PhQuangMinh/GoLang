@@ -1,21 +1,19 @@
 package rabbitmq
 
 import (
+	"Practice/model"
 	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/streadway/amqp"
 	"time"
 )
 
-func GetQueue(nameQueue string) {
-	fmt.Println("Go RabbitMQ")
-
+func GetQueue(nameQueue string, waitTime time.Duration) {
 	conn, err := amqp.Dial("amqps://dgqdeyun:JQ3bkX-hrfUV0CD8FTMq_Zdtry-eijP3@armadillo.rmq.cloudamqp.com/dgqdeyun")
 	if err != nil {
 		fmt.Println("Failed to connect to RabbitMQ")
 	}
 	defer conn.Close()
-	fmt.Println("Successfully")
 
 	ch, err := conn.Channel()
 	if err != nil {
@@ -35,16 +33,52 @@ func GetQueue(nameQueue string) {
 
 	go func() {
 		for d := range msgs {
-			fmt.Printf("%s\n", d.Body)
-			body, err := json.Marshal(d.Body)
+			var cal model.Call
+			er := json.Unmarshal(d.Body, &cal)
+			cal.CallAnsweredTime = time.Now()
+			time.Sleep(waitTime)
+			cal.CallEndedTime = time.Now()
+			fmt.Println(er)
 			if err != nil {
 				fmt.Println(err)
 			}
-			time.Sleep(3 * time.Second)
-			fmt.Println("Day")
-			Push(body, "QueueResult")
+			Push(cal, "QueueResult")
 		}
 	}()
 
 	fmt.Println("Thanh cong")
+}
+
+func GetQueueResult(nameQueue string) {
+	conn, err := amqp.Dial("amqps://dgqdeyun:JQ3bkX-hrfUV0CD8FTMq_Zdtry-eijP3@armadillo.rmq.cloudamqp.com/dgqdeyun")
+	if err != nil {
+		fmt.Println("Failed to connect to RabbitMQ")
+	}
+	defer conn.Close()
+
+	ch, err := conn.Channel()
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+	defer ch.Close()
+
+	msgs, err := ch.Consume(
+		nameQueue,
+		"",
+		true,
+		false,
+		false,
+		false,
+		nil)
+
+	fmt.Println("Queue Result")
+	go func() {
+		for d := range msgs {
+			var cal model.Call
+			er := json.Unmarshal(d.Body, &cal)
+			fmt.Println(er, cal)
+		}
+	}()
+
 }

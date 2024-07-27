@@ -20,6 +20,8 @@ func main() {
 	go database.PostData(data)
 	go rabbitmq.Push(data, "QueueSolve")
 	time.Sleep(2 * time.Second)
-	rabbitmq.GetQueue("QueueSolve")
-	time.Sleep(7 * time.Second)
+	rabbitmq.GetQueue("QueueSolve", 3*time.Second)
+	time.Sleep(10 * time.Second)
+	rabbitmq.GetQueueResult("QueueResult")
+	time.Sleep(2 * time.Second)
 }
