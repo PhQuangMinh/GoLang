@@ -1,8 +1,11 @@
 package main
 
-import "Practice/controller/consumerreceive"
+import "Practice/controller/apilist"
 
 func main() {
-	//consumercreate.CreateNewCall("QueueSolve")
-	consumerreceive.ReceiveCall("QueueSolve")
+	//consumer.CreateNewCall("QueueSolve")
+	//consumerreceive.ReceiveCall("QueueSolve")
+	//consumerupdate.UpdateQueueResult("QueueResult")
+	//apilist.GetList()
+	apilist.GetItem()
 }

@@ -1,61 +1,23 @@
-package consumercreate
+package consumer
 
 import (
+	"Practice/controller"
 	"Practice/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
 	"github.com/streadway/amqp"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"net/http"
 )
 
-func makeGorm() *gorm.DB {
-	dsn := "root:123456@tcp(127.0.0.1:3306)/call_management?charset=utf8mb4&parseTime=True&loc=Local"
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
-	if err != nil {
-		fmt.Println("Failed connect database")
-		return nil
-	}
-	return db
-}
-
-func makeChannel(nameQueue string) (*amqp.Channel, *amqp.Connection) {
-	conn, err := amqp.Dial("amqps://dgqdeyun:JQ3bkX-hrfUV0CD8FTMq_Zdtry-eijP3@armadillo.rmq.cloudamqp.com/dgqdeyun")
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	ch, err := conn.Channel()
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
-
-	q, err := ch.QueueDeclare(
-		nameQueue,
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
-
-	fmt.Println(q)
-	return ch, conn
-}
 func CreateNewCall(nameQueue string) {
-	var db = makeGorm()
+	var db = controller.MakeGorm()
 
-	ch, con := makeChannel(nameQueue)
+	ch, con := controller.MakeChannel(nameQueue)
 	defer ch.Close()
 	defer con.Close()
+
 	r := gin.Default()
 	r.POST("/v1/items/", Create(db, ch, nameQueue))
 	r.Run()

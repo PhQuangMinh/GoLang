@@ -1,41 +1,13 @@
-package consumerreceive
+package consumer
 
 import (
+	"Practice/controller"
 	"Practice/model"
 	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/streadway/amqp"
 	"time"
 )
-
-func makeChannel(nameQueue string) (*amqp.Channel, *amqp.Connection) {
-	conn, err := amqp.Dial("amqps://dgqdeyun:JQ3bkX-hrfUV0CD8FTMq_Zdtry-eijP3@armadillo.rmq.cloudamqp.com/dgqdeyun")
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	ch, err := conn.Channel()
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
-
-	q, err := ch.QueueDeclare(
-		nameQueue,
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
-
-	fmt.Println(q)
-	return ch, conn
-}
 
 func receiveQueueSolve(ch *amqp.Channel, nameQueue string, waitTime time.Duration) {
 	msgs, err := ch.Consume(
@@ -59,6 +31,7 @@ func receiveQueueSolve(ch *amqp.Channel, nameQueue string, waitTime time.Duratio
 			if er != nil {
 				fmt.Println(er)
 			}
+			fmt.Println(cal)
 			pushQueueResult(ch, "QueueResult", cal)
 			cha <- true
 		}
@@ -88,7 +61,7 @@ func pushQueueResult(ch *amqp.Channel, nameQueue string, data interface{}) {
 }
 
 func ReceiveCall(nameQueue string) {
-	ch, con := makeChannel(nameQueue)
+	ch, con := controller.MakeChannel(nameQueue)
 	defer ch.Close()
 	defer con.Close()
 
