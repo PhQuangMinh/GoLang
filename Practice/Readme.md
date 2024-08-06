@@ -33,3 +33,9 @@
 
 ## 2. Yêu cầu về tech stack
 ### 2.1. Sử dụng MySQL làm database, rabbitmq làm queue
+
+## 3. Middlewares
+- Thêm cho 2 middlewares: CORS middleware, Authentication Middleware (JWT token, cách authentication trên web app).
+- Cùng với authentication middleware, thêm CRUD của User nữa, có kèm cả login logout, và cái luồng auth đó làm dùng user này.
+- Lúc nào xong thì thử deploy lên server nào đó, nếu e có, ko có sv thì dùng ngrok host lên, rồi đưa anh cái địa chỉ ngrok a vào test thử xem như nào
+  https://viblo.asia/p/tooling-gioi-thieu-ngrok-mang-demo-du-an-web-len-internet-khong-can-deploy-naQZR7eqlvx

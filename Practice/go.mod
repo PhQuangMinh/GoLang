@@ -5,9 +5,7 @@ go 1.22
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/goccy/go-json v0.10.2
-	github.com/google/generative-ai-go v0.17.0
 	github.com/streadway/amqp v1.1.0
-	google.golang.org/api v0.189.0
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.11
 )
