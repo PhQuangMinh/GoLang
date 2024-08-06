@@ -3,8 +3,8 @@ package consumer
 import (
 	"Practice/common"
 	"Practice/driver"
+	"Practice/errorproject"
 	"Practice/repository/repoimpl"
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,7 +14,7 @@ func CreateNewCall(nameQueue string) {
 
 	channel, connect, err := driver.ConnectRabbit("QueueSolve", common.LinkRabbit)
 	if err != nil {
-		fmt.Println(err)
+		errorproject.LogErr(err.Error())
 		return
 	}
 	rabbit := repoimpl.NewRabbitMQ(channel, connect)

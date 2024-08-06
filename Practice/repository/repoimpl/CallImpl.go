@@ -101,7 +101,7 @@ func (callRepo *CallRepoImpl) Update(data model.Call) func(context *gin.Context)
 			Where("id = ?", data.Id).
 			Updates(&data).Error; err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
+				"errorproject": err.Error(),
 			})
 			return
 		}
