@@ -1117,14 +1117,14 @@
 
     ```go
     func myFunction() error {
-        return errors.New("error")
+        return errors.New("errorpk")
     }
     ```
 - Tạo lỗi bằng error.Errorf cho các lỗi cần thêm thông tin
 
     ```go
     func myFunction() error {
-        return errors.Errorf("error %v", time.Now())
+        return errors.Errorf("errorpk %v", time.Now())
     }
     ```
 ##### b. So sánh lỗi
@@ -1184,7 +1184,7 @@
     }
 
     func inner() error {
-        return errors.New("inner error")
+        return errors.New("inner errorpk")
     }
 
     func main() {
