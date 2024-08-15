@@ -1,4 +1,4 @@
-package errorpk
+package handlers
 
 import (
 	log "github.com/sirupsen/logrus"

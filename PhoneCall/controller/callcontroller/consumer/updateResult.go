@@ -2,15 +2,15 @@ package consumer
 
 import (
 	"PhoneCall/common"
-	"PhoneCall/driver"
-	models "PhoneCall/models"
-	"PhoneCall/repository/repoimpl"
+	models "PhoneCall/model"
+	"PhoneCall/repository"
+	"PhoneCall/service/connection"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
-func popQueueResult(rabbit *repoimpl.RabbitMQ, callRepo *repoimpl.CallRepoImpl, nameQueue string) {
+func popQueueResult(rabbit *repository.RabbitMQ, callRepo *repository.CallRepoImpl, nameQueue string) {
 	messages, err := rabbit.Pop(nameQueue)
 	if err != nil {
 		fmt.Println(err)
@@ -35,22 +35,22 @@ func popQueueResult(rabbit *repoimpl.RabbitMQ, callRepo *repoimpl.CallRepoImpl, 
 	fmt.Println("Thanh cong")
 }
 
-func updateDatabase(callRepo *repoimpl.CallRepoImpl, data models.Call) {
+func updateDatabase(callRepo *repository.CallRepoImpl, data models.Call) {
 	r := gin.Default()
-	r.PUT("/v1/items", callRepo.Update(data))
+	//r.PUT("/v1/items", callRepo.UpdateCall(data))
 	r.Run()
 }
 
 func UpdateResult(nameQueue string) {
-	MySQL := driver.ConnectDB(common.User, common.Password, common.Port, common.NameDB)
-	callRepo := repoimpl.CallRepoImpl{MySQL: MySQL}
+	MySQL := connection.ConnectDB(common.User, common.Password, common.Port, common.NameDB)
+	callRepo := repository.CallRepoImpl{MySQL: MySQL}
 
-	channel, connect, err := driver.ConnectRabbit("QueueSolve", common.LinkRabbit)
+	channel, connect, err := connection.ConnectRabbit("QueueSolve", common.LinkRabbit)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	rabbit := repoimpl.NewRabbitMQ(channel, connect)
+	rabbit := repository.NewRabbitMQ(channel, connect)
 	defer rabbit.Connect.Close()
 	defer rabbit.Channel.Close()
 

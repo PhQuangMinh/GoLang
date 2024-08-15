@@ -1,4 +1,4 @@
-package driver
+package connection
 
 import (
 	"github.com/streadway/amqp"

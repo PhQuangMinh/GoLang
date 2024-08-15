@@ -1,31 +1,27 @@
 package middlewares
 
 import (
-	"PhoneCall/helpers"
+	"PhoneCall/controller/helpers"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-var jwtKey = []byte("123456")
-
 func AuthMiddleware() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		tokenString := context.GetHeader("Authorization")
+	return func(ctx *gin.Context) {
+		tokenString := ctx.GetHeader("Authorization")
 
 		if tokenString == "" {
-			context.JSON(http.StatusUnauthorized, gin.H{
+			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"ErrorAuth": http.StatusUnauthorized,
 			})
-			context.Abort()
+			ctx.Abort()
 			return
 		}
-
-		tokenString = tokenString[len("Bearer "):]
-		ok := helpers.ValidateToken(tokenString, context)
+		ok := helpers.ValidateToken(tokenString, ctx)
 		if !ok {
-			context.Abort()
+			ctx.Abort()
 			return
 		}
-		context.Next()
+		ctx.Next()
 	}
 }

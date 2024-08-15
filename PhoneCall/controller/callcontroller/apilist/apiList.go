@@ -2,17 +2,17 @@ package apilist
 
 import (
 	"PhoneCall/common"
-	"PhoneCall/driver"
-	"PhoneCall/repository/repoimpl"
-	"PhoneCall/service"
+	"PhoneCall/repository"
+	"PhoneCall/service/callservice"
+	"PhoneCall/service/connection"
 	"github.com/gin-gonic/gin"
 )
 
 func GetList() {
 	r := gin.Default()
-	MySQL := driver.ConnectDB(common.User, common.Password, common.Port, common.NameDB)
-	callRepo := repoimpl.CallRepoImpl{MySQL: MySQL}
-	callService := service.NewGetCallService(&callRepo)
-	r.GET("/v1/items", callService.GetCalls())
+	MySQL := connection.ConnectDB(common.User, common.Password, common.Port, common.NameDB)
+	callRepo := repository.CallRepoImpl{MySQL: MySQL}
+	callService := callservice.NewGetCallService(&callRepo)
+	r.GET("/v1/items", callService.GetCallsTime())
 	r.Run()
 }

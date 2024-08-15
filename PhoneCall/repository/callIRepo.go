@@ -1,18 +1,27 @@
-package repoimpl
+package repository
 
 import (
-	"PhoneCall/driver"
-	models "PhoneCall/models"
+	models "PhoneCall/model"
+	"PhoneCall/service/connection"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
 )
 
-type CallRepoImpl struct {
-	MySQL *driver.MySQL
+type CallRepo interface {
+	GetCalls(startAt, endAt time.Time) ([]*models.Call, error)
+	GetCallByID(callID int64) (*models.Call, error)
+	GetValueField(callID int64, displayField string) (*models.Call, error)
+	CreateNewCall(call *models.Call) (*models.Call, error)
+	UpdateCall(c *gin.Context, data *models.Call) (*models.Call, error)
+	DeleteCall(id int64) error
 }
 
-func NewCallRepoImpl(MySQL *driver.MySQL) *CallRepoImpl {
+type CallRepoImpl struct {
+	MySQL *connection.MySQL
+}
+
+func NewCallRepoImpl(MySQL *connection.MySQL) *CallRepoImpl {
 	return &CallRepoImpl{MySQL: MySQL}
 }
 
@@ -43,8 +52,8 @@ func (callRepo *CallRepoImpl) GetCallByID(id int64) (*models.Call, error) {
 	return call, nil
 }
 
-func (callRepo *CallRepoImpl) GetValueField(id int64, field string) (models.Call, error) {
-	var data models.Call
+func (callRepo *CallRepoImpl) GetValueField(id int64, field string) (*models.Call, error) {
+	var data *models.Call
 	if field == "" {
 		err := callRepo.MySQL.SQL.Table("calls").
 			Where("id = ?", id).
@@ -67,47 +76,31 @@ func (callRepo *CallRepoImpl) GetValueField(id int64, field string) (models.Call
 	return data, nil
 }
 
-func (callRepo *CallRepoImpl) Post(rabbit *RabbitMQ, nameQueue string) func(context *gin.Context) {
-	return func(context *gin.Context) {
-		var data models.Call
-		if err := context.ShouldBind(&data); err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{
-				"error1": err.Error(),
-			})
-			return
-		}
-
-		if err := callRepo.MySQL.SQL.Create(&data).Error; err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{
-				"error2": err.Error(),
-			})
-			return
-		}
-		rabbit.Push(nameQueue, data)
-		context.JSON(http.StatusOK, data)
+func (callRepo *CallRepoImpl) CreateNewCall(call *models.Call) (*models.Call, error) {
+	if err := callRepo.MySQL.SQL.Create(&call).Error; err != nil {
+		return nil, err
 	}
+	return call, nil
 }
 
-func (callRepo *CallRepoImpl) Update(data models.Call) func(context *gin.Context) {
-	return func(c *gin.Context) {
-		if err := c.ShouldBind(&data); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"Error": err.Error(),
-			})
-			return
-		}
-
-		if err := callRepo.MySQL.SQL.Table("calls").
-			Where("id = ?", data.Id).
-			Updates(&data).Error; err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"Error": err.Error(),
-			})
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{
-			"data": data,
+func (callRepo *CallRepoImpl) UpdateCall(c *gin.Context, data *models.Call) (*models.Call, error) {
+	if err := callRepo.MySQL.SQL.Table("calls").
+		Where("id = ?", data.Id).
+		Updates(&data).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": err.Error(),
 		})
+		return nil, err
 	}
+	return data, nil
+}
+
+func (callRepo *CallRepoImpl) DeleteCall(id int64) error {
+	err := callRepo.MySQL.SQL.Table("calls").
+		Where("id = ?", id).
+		Delete(&models.Call{}).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -2,15 +2,14 @@ package consumer
 
 import (
 	"PhoneCall/common"
-	"PhoneCall/driver"
-	"PhoneCall/models"
-	"PhoneCall/repository/repoimpl"
+	"PhoneCall/repository"
+	"PhoneCall/service/connection"
 	"fmt"
 	"github.com/goccy/go-json"
 	"time"
 )
 
-func popQueueSolve(rabbit *repoimpl.RabbitMQ, nameQueue string, waitTime time.Duration) {
+func popQueueSolve(rabbit *repository.RabbitMQ, nameQueue string, waitTime time.Duration) {
 	messages, err := rabbit.Pop(nameQueue)
 	if err != nil {
 		fmt.Println(err)
@@ -40,12 +39,12 @@ func popQueueSolve(rabbit *repoimpl.RabbitMQ, nameQueue string, waitTime time.Du
 }
 
 func ReceiveCall(nameQueue string) {
-	channel, connect, err := driver.ConnectRabbit("QueueSolve", common.LinkRabbit)
+	channel, connect, err := connection.ConnectRabbit("QueueSolve", common.LinkRabbit)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	rabbit := repoimpl.NewRabbitMQ(channel, connect)
+	rabbit := repository.NewRabbitMQ(channel, connect)
 	defer rabbit.Connect.Close()
 	defer rabbit.Channel.Close()
 
