@@ -6,10 +6,10 @@ import (
 )
 
 type UserRepo interface {
-	CreateNewUser(user *models.UserInfo) (*models.UserInfo, error)
+	CreateNewUser(user *models.User) (*models.User, error)
 	GetUserById(id int64) (*models.UserInfo, error)
 	GetUsers() ([]*models.UserInfo, error)
-	UpdateUser(user *models.User, id int64) (*models.User, error)
+	UpdateUser(user *models.UserUpdate, id int64) (*models.UserUpdate, error)
 	DeleteUser(id int64) error
 	VerifyValueField(fieldName string, valueField string) (*models.User, error)
 	UpdateValueFields(id int64, updates map[string]interface{}) error
@@ -23,7 +23,7 @@ func NewUserRepoImpl(MySQL *connection.MySQL) *UserRepoImpl {
 	return &UserRepoImpl{MySQL: MySQL}
 }
 
-func (UserRepo *UserRepoImpl) CreateNewUser(user *models.UserInfo) (*models.UserInfo, error) {
+func (UserRepo *UserRepoImpl) CreateNewUser(user *models.User) (*models.User, error) {
 	if err := UserRepo.MySQL.SQL.Table("users").Create(&user).Error; err != nil {
 		return nil, err
 	}
@@ -50,8 +50,11 @@ func (UserRepo *UserRepoImpl) GetUsers() ([]*models.UserInfo, error) {
 	return users, nil
 }
 
-func (UserRepo *UserRepoImpl) UpdateUser(user *models.User, id int64) (*models.User, error) {
-	err := UserRepo.MySQL.SQL.Table("users").Where("id = ?", id).Updates(&user).Error
+func (UserRepo *UserRepoImpl) UpdateUser(user *models.UserUpdate, id int64) (*models.UserUpdate, error) {
+	err := UserRepo.MySQL.SQL.
+		Table("users").
+		Where("id = ?", id).
+		Updates(&user).Error
 	if err != nil {
 		return nil, err
 	}

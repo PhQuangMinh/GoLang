@@ -5,14 +5,11 @@ import (
 	"PhoneCall/model"
 	"errors"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"net/http"
 )
-
-var validate = validator.New()
 
 func (userService *UserService) HashPassword(password string) string {
 	by, err := bcrypt.GenerateFromPassword([]byte(password), 14)
@@ -24,7 +21,7 @@ func (userService *UserService) HashPassword(password string) string {
 
 func (userService *UserService) Signup() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var userSignUp model.UserInfo
+		var userSignUp model.User
 		if err := c.ShouldBind(&userSignUp); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			handlers.LogErr(err.Error())

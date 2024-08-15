@@ -7,7 +7,7 @@ type User struct {
 	FirstName   *string   `json:"first_name" gorm:"column:first_name" validate:"required"`
 	LastName    *string   `json:"last_name" gorm:"column:last_name" validate:"required"`
 	UserName    string    `json:"user_name" gorm:"column:user_name" validate:"required"`
-	Password    string    `json:"password" gorm:"column:password" validate:"required"`
+	Password    string    `json:"password" gorm:"column:password" validate:"required,min=8,max=32"`
 	PhoneNumber string    `json:"phone_number" gorm:"column:phone_number" validate:"required"`
 	Email       string    `json:"email" gorm:"column:email" validate:"required"`
 	UserType    string    `json:"user_type" gorm:"column:user_type" validate:"required"`
@@ -19,8 +19,14 @@ type UserInfo struct {
 	FirstName   *string `json:"first_name" gorm:"column:first_name" validate:"required"`
 	LastName    *string `json:"last_name" gorm:"column:last_name" validate:"required"`
 	UserName    string  `json:"user_name" gorm:"column:user_name" validate:"required"`
-	Password    string  `json:"password" gorm:"column:password" validate:"required"`
 	PhoneNumber string  `json:"phone_number" gorm:"column:phone_number" validate:"required"`
 	Email       string  `json:"email" gorm:"column:email" validate:"required"`
 	UserType    string  `json:"user_type" gorm:"column:user_type" validate:"required"`
+}
+
+type UserUpdate struct {
+	FirstName   *string `json:"first_name" gorm:"column:first_name" validate:"required"`
+	LastName    *string `json:"last_name" gorm:"column:last_name" validate:"required"`
+	PhoneNumber string  `json:"phone_number" gorm:"column:phone_number" validate:"required"`
+	Email       string  `json:"email" gorm:"column:email" validate:"required"`
 }

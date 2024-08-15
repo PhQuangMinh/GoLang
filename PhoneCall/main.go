@@ -34,7 +34,8 @@ func main() {
 			users.POST("/logout", userService.Logout())
 			users.GET("/:id", middlewares.AuthMiddleware(), userService.GetUserById)
 			users.GET("", middlewares.AuthMiddleware(), userService.GetUsers)
-			users.PUT("/:id", middlewares.AuthMiddleware(), userService.UpdateUserById)
+			users.PUT("/:id", middlewares.AuthMiddleware(), userService.UpdateUserInfoById)
+			users.PUT("/password/:id", middlewares.AuthMiddleware(), userService.UpdateUserPasswordInfoById)
 			users.DELETE("/:id", middlewares.AuthMiddleware(), userService.DeleteUserById)
 		}
 	}
