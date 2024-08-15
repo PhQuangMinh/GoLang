@@ -1,13 +1,12 @@
 package main
 
 import (
-	"PhoneCall/common"
 	"PhoneCall/handlers/middlewares"
 	"PhoneCall/repository"
+	"PhoneCall/service/callservice"
 	"PhoneCall/service/connection"
 	"PhoneCall/service/redisservice"
 	"PhoneCall/service/userservice"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"os"
 )
@@ -17,16 +16,27 @@ func main() {
 	password := os.Getenv("PASSWORD")
 	nameDatabase := os.Getenv("NAME_DATABASE")
 	port := os.Getenv("PORT")
-	fmt.Println(user, password, nameDatabase, port)
 	router := gin.Default()
 	router.Use(middlewares.CORSMiddleware())
-	MySQL := connection.ConnectDB(common.User, common.Password, common.Port, common.NameDB)
+
+	MySQL := connection.ConnectDB(user, password, port, nameDatabase)
 	userRepo := repository.NewUserRepoImpl(MySQL)
 	client := connection.ConnectRedis()
 	redisService := redisservice.NewRedisService(client)
 	userService := userservice.NewUserService(userRepo, *redisService)
+
+	callRepo := repository.NewCallRepoImpl(MySQL)
+	callService := callservice.NewCallService(callRepo)
+
 	routerUser := router.Group("/v2")
 	{
+		calls := routerUser.Group("/calls", middlewares.AuthMiddleware())
+		{
+			calls.GET("", callService.GetCallsTime())
+			calls.POST("", callService.CreateNewCall())
+			calls.PUT("/:id", callService.UpdateCall())
+			calls.DELETE("/:id", callService.DeleteCall())
+		}
 		users := routerUser.Group("/users")
 		{
 			users.POST("/register", userService.Signup())

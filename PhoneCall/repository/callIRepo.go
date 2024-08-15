@@ -1,7 +1,7 @@
 package repository
 
 import (
-	models "PhoneCall/model"
+	"PhoneCall/model"
 	"PhoneCall/service/connection"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -9,11 +9,11 @@ import (
 )
 
 type CallRepo interface {
-	GetCalls(startAt, endAt time.Time) ([]*models.Call, error)
-	GetCallByID(callID int64) (*models.Call, error)
-	GetValueField(callID int64, displayField string) (*models.Call, error)
-	CreateNewCall(call *models.Call) (*models.Call, error)
-	UpdateCall(c *gin.Context, data *models.Call) (*models.Call, error)
+	GetCalls(startAt, endAt time.Time, paging model.Paging) ([]*model.Call, error)
+	GetCallByID(callID int64) (*model.Call, error)
+	GetValueField(callID int64, displayField string) (*model.Call, error)
+	CreateNewCall(call *model.Call) (*model.Call, error)
+	UpdateCall(c *gin.Context, data *model.Call) (*model.Call, error)
 	DeleteCall(id int64) error
 }
 
@@ -25,13 +25,14 @@ func NewCallRepoImpl(MySQL *connection.MySQL) *CallRepoImpl {
 	return &CallRepoImpl{MySQL: MySQL}
 }
 
-func (callRepo *CallRepoImpl) GetCalls(startAt, endAt time.Time) ([]*models.Call, error) {
-	var calls []*models.Call
+func (callRepo *CallRepoImpl) GetCalls(startAt, endAt time.Time, paging model.Paging) ([]*model.Call, error) {
+	var calls []*model.Call
 	err := callRepo.MySQL.SQL.Table("calls").
 		Order("id, client_name, phone_number").
 		Where("created_at between ? and ?", startAt, endAt).
+		Offset((paging.Page - 1) * paging.Limit).
+		Limit(paging.Limit).
 		Find(&calls).Error
-
 	if err != nil {
 		return nil, err
 	}
@@ -39,8 +40,8 @@ func (callRepo *CallRepoImpl) GetCalls(startAt, endAt time.Time) ([]*models.Call
 	return calls, nil
 }
 
-func (callRepo *CallRepoImpl) GetCallByID(id int64) (*models.Call, error) {
-	call := &models.Call{}
+func (callRepo *CallRepoImpl) GetCallByID(id int64) (*model.Call, error) {
+	call := &model.Call{}
 	err := callRepo.MySQL.SQL.Table("calls").
 		Where("id = ?", id).
 		First(&call).Error
@@ -52,8 +53,8 @@ func (callRepo *CallRepoImpl) GetCallByID(id int64) (*models.Call, error) {
 	return call, nil
 }
 
-func (callRepo *CallRepoImpl) GetValueField(id int64, field string) (*models.Call, error) {
-	var data *models.Call
+func (callRepo *CallRepoImpl) GetValueField(id int64, field string) (*model.Call, error) {
+	var data *model.Call
 	if field == "" {
 		err := callRepo.MySQL.SQL.Table("calls").
 			Where("id = ?", id).
@@ -76,14 +77,14 @@ func (callRepo *CallRepoImpl) GetValueField(id int64, field string) (*models.Cal
 	return data, nil
 }
 
-func (callRepo *CallRepoImpl) CreateNewCall(call *models.Call) (*models.Call, error) {
+func (callRepo *CallRepoImpl) CreateNewCall(call *model.Call) (*model.Call, error) {
 	if err := callRepo.MySQL.SQL.Create(&call).Error; err != nil {
 		return nil, err
 	}
 	return call, nil
 }
 
-func (callRepo *CallRepoImpl) UpdateCall(c *gin.Context, data *models.Call) (*models.Call, error) {
+func (callRepo *CallRepoImpl) UpdateCall(c *gin.Context, data *model.Call) (*model.Call, error) {
 	if err := callRepo.MySQL.SQL.Table("calls").
 		Where("id = ?", data.Id).
 		Updates(&data).Error; err != nil {
@@ -98,7 +99,7 @@ func (callRepo *CallRepoImpl) UpdateCall(c *gin.Context, data *models.Call) (*mo
 func (callRepo *CallRepoImpl) DeleteCall(id int64) error {
 	err := callRepo.MySQL.SQL.Table("calls").
 		Where("id = ?", id).
-		Delete(&models.Call{}).Error
+		Delete(&model.Call{}).Error
 	if err != nil {
 		return err
 	}

@@ -49,6 +49,11 @@ func (userService *UserService) Signup() gin.HandlerFunc {
 			handlers.LogErr(err.Error())
 			return
 		}
+		//Tạm thời kiểm tra 2 loại ADMIN, USER sau này có thể thêm các loại khác tránh bị đăng kí sai kiểu user
+		if userSignUp.UserType != "ADMIN" && userSignUp.UserType != "USER" {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "UserType is invalid"})
+			return
+		}
 
 		password := userService.HashPassword(userSignUp.Password)
 		userSignUp.Password = password
