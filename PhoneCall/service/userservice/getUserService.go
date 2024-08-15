@@ -3,6 +3,8 @@ package userservice
 import (
 	"PhoneCall/controller/helpers"
 	"PhoneCall/handlers"
+	"PhoneCall/model"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -38,6 +40,7 @@ func (userService *UserService) GetUserById(c *gin.Context) {
 }
 
 func (userService *UserService) GetUsers(c *gin.Context) {
+	//Kieemrr tra xem nếu là admin mới truy cập tất cả user
 	err := helpers.CheckUserType(c, "ADMIN")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -45,12 +48,34 @@ func (userService *UserService) GetUsers(c *gin.Context) {
 		})
 		return
 	}
-	users, err := userService.UserRepo.GetUsers()
+
+	var paging model.Paging
+	if err := c.ShouldBind(&paging); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	paging.Process()
+
+	numberOfUsers, err := userService.UserRepo.GetNumberOfUsers()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-	c.JSON(http.StatusOK, users)
+	users, err := userService.UserRepo.GetUsers(&paging)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	fmt.Println(numberOfUsers)
+	c.JSON(http.StatusOK, gin.H{
+		"users":      users,
+		"pagination": numberOfUsers,
+	})
 }
