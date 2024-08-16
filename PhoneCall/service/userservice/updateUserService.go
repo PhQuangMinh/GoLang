@@ -2,6 +2,7 @@ package userservice
 
 import (
 	"PhoneCall/controller/helpers"
+	"PhoneCall/handlers"
 	"PhoneCall/model"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -108,4 +109,5 @@ func (userService *UserService) UpdateUserPasswordInfoById(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, "updated password user successfully")
+	handlers.LogInfo("updated password user successfully")
 }

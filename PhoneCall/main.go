@@ -1,6 +1,8 @@
 package main
 
 import (
+	"PhoneCall/common"
+	"PhoneCall/handlers"
 	"PhoneCall/handlers/middlewares"
 	"PhoneCall/repository"
 	"PhoneCall/service/callservice"
@@ -8,18 +10,14 @@ import (
 	"PhoneCall/service/redisservice"
 	"PhoneCall/service/userservice"
 	"github.com/gin-gonic/gin"
-	"os"
 )
 
 func main() {
-	user := os.Getenv("USER")
-	password := os.Getenv("PASSWORD")
-	nameDatabase := os.Getenv("NAME_DATABASE")
-	port := os.Getenv("PORT")
+	handlers.InitLogging()
 	router := gin.Default()
 	router.Use(middlewares.CORSMiddleware())
 
-	MySQL := connection.ConnectDB(user, password, port, nameDatabase)
+	MySQL := connection.ConnectDB(common.User, common.Password, common.Port, common.NameDB)
 	userRepo := repository.NewUserRepoImpl(MySQL)
 	client := connection.ConnectRedis()
 	redisService := redisservice.NewRedisService(client)
