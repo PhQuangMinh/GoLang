@@ -10,6 +10,7 @@ import (
 	"PhoneCall/service/redisservice"
 	"PhoneCall/service/userservice"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func main() {
@@ -17,18 +18,22 @@ func main() {
 	router := gin.Default()
 	router.Use(middlewares.CORSMiddleware())
 
-	MySQL := connection.ConnectDB(common.User, common.Password, common.Port, common.NameDB)
+	MySQL := connection.ConnectDB(common.USER, common.PASSWORD, common.PORT, common.NAME_DATABASE)
 	userRepo := repository.NewUserRepoImpl(MySQL)
 	client := connection.ConnectRedis()
-	redisService := redisservice.NewRedisService(client)
-	userService := userservice.NewUserService(userRepo, *redisService)
+	redis := redisservice.NewRedisService(client)
+	userService := userservice.NewUserService(userRepo, *redis)
 
 	callRepo := repository.NewCallRepoImpl(MySQL)
 	callService := callservice.NewCallService(callRepo)
 
 	routerUser := router.Group("/v2")
 	{
-		calls := routerUser.Group("/calls", middlewares.AuthMiddleware())
+		test := routerUser.Group("/test")
+		{
+			test.POST("", HELLO())
+		}
+		calls := routerUser.Group("/calls", middlewares.AuthMiddleware(redis))
 		{
 			calls.GET("", callService.GetCallsTime())
 			calls.POST("", callService.CreateNewCall())
@@ -39,13 +44,19 @@ func main() {
 		{
 			users.POST("/register", userService.Signup())
 			users.POST("/login", userService.Login())
-			users.POST("/logout", userService.Logout())
-			users.GET("/:id", middlewares.AuthMiddleware(), userService.GetUserById)
-			users.GET("", middlewares.AuthMiddleware(), userService.GetUsers)
-			users.PUT("/:id", middlewares.AuthMiddleware(), userService.UpdateUserInfoById)
-			users.PUT("/password/:id", middlewares.AuthMiddleware(), userService.UpdateUserPasswordInfoById)
-			users.DELETE("/:id", middlewares.AuthMiddleware(), userService.DeleteUserById)
+			users.POST("/logout", middlewares.AuthMiddleware(redis), userService.Logout())
+			users.GET("/:id", middlewares.AuthMiddleware(redis), userService.GetUserById)
+			users.GET("", middlewares.AuthMiddleware(redis), userService.GetUsers)
+			users.PUT("/:id", middlewares.AuthMiddleware(redis), userService.UpdateUserInfoById)
+			users.PUT("/password/:id", middlewares.AuthMiddleware(redis), userService.UpdateUserPasswordInfoById)
+			users.DELETE("/:id", middlewares.AuthMiddleware(redis), userService.DeleteUserById)
 		}
 	}
 	router.Run()
+}
+
+func HELLO() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, "HELLO")
+	}
 }

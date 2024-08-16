@@ -1,6 +1,8 @@
 package helpers
 
 import (
+	"PhoneCall/handlers"
+	"PhoneCall/service/redisservice"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -51,7 +53,7 @@ func GenerateTokens(id int64, email string, firstName string, lastName string, u
 	return token, refreshToken, err
 }
 
-func ValidateToken(tokenString string, c *gin.Context) bool {
+func ValidateToken(tokenString string, c *gin.Context, redisService *redisservice.RedisService) bool {
 	//Giai ma token
 	token, err := jwt.ParseWithClaims(
 		tokenString,
@@ -73,10 +75,14 @@ func ValidateToken(tokenString string, c *gin.Context) bool {
 		})
 		return false
 	}
-	if claims.ExpiresAt < time.Now().Local().Unix() {
+
+	err = redisService.Client.Get(c, "access_token_"+strconv.FormatInt(claims.Id, 10)).Err()
+
+	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Expired token",
+			"error": "Access token does not exist",
 		})
+		handlers.LogErr("Access token does not exist")
 		return false
 	}
 	c.Set("email", claims.Email)
@@ -84,5 +90,6 @@ func ValidateToken(tokenString string, c *gin.Context) bool {
 	c.Set("id", strconv.FormatInt(claims.Id, 10))
 	c.Set("last_name", claims.LastName)
 	c.Set("user_type", claims.UserType)
+	handlers.LogInfo(c.GetString("email") + " " + c.GetString("id"))
 	return true
 }

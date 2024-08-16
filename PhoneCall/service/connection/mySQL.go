@@ -1,6 +1,7 @@
 package connection
 
 import (
+	"PhoneCall/handlers"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -17,7 +18,7 @@ func ConnectDB(user, password, port, host string) *MySQL {
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		fmt.Println("Failed connect database")
+		handlers.LogDebug("Failed connect database")
 		return nil
 	}
 
