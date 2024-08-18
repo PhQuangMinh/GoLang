@@ -14,6 +14,8 @@ type UserRepo interface {
 	VerifyValueField(fieldName string, valueField string) (*model.User, error)
 	UpdateValueFields(id int64, updates map[string]interface{}) error
 	GetNumberOfUsers() (int64, error)
+	GetValueFieldById(id int64, field string) (string, error)
+	GetFullInfoUserById(id int64) (*model.User, error)
 }
 
 type UserRepoImpl struct {
@@ -103,4 +105,22 @@ func (UserRepo *UserRepoImpl) GetNumberOfUsers() (int64, error) {
 		return 0, err
 	}
 	return count, nil
+}
+
+func (UserRepo *UserRepoImpl) GetValueFieldById(id int64, field string) (string, error) {
+	var value string
+	if err := UserRepo.MySQL.SQL.Table("users").Select(field).Where("id = ?", id).Scan(&value).Error; err != nil {
+		return "", err
+	}
+	return value, nil
+}
+
+func (UserRepo *UserRepoImpl) GetFullInfoUserById(id int64) (*model.User, error) {
+	user := &model.User{}
+	err := UserRepo.MySQL.SQL.Table("users").Where("id = ?", id).First(&user).Error
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
 }

@@ -10,6 +10,35 @@ import (
 	"strconv"
 )
 
+func (userService *UserService) GetFullInfoUser(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		handlers.LogErr(err.Error())
+		return
+	}
+	//Kiểm tra xem nếu là user đúng id chưa, nếu không thì ko đc truy cập
+	err = helpers.MatchUserTypeId(c, id)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	user, err := userService.UserRepo.GetUserById(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, user)
+}
+
 func (userService *UserService) GetUserById(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
@@ -75,7 +104,6 @@ func (userService *UserService) GetUsers(c *gin.Context) {
 	}
 	fmt.Println(numberOfUsers)
 	c.JSON(http.StatusOK, gin.H{
-		"users":      users,
-		"pagination": numberOfUsers,
+		"users": users,
 	})
 }

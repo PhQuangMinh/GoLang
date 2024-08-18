@@ -1,105 +1,53 @@
-/* Reset Styles */
-* {
+body {
+    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #e0f7fa;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-/* Login Container */
-.login-container {
-    background: linear-gradient(135deg, #00bcd4, #009688);
-    border-radius: 20px;
-    padding: 40px;
-    width: 350px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-/* Title */
-h2 {
-    font-size: 24px;
-    color: #ffffff;
+h2, h3 {
     margin-bottom: 20px;
 }
 
-/* Input Styles */
 input {
-    width: 100%;
-    padding: 15px;
+    width: calc(100% - 22px);
+    padding: 10px;
     margin: 10px 0;
-    border-radius: 30px;
-    border: none;
-    background-color: #ffffff;
-    font-size: 16px;
-    color: #333;
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
-input:focus {
-    outline: none;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-}
-
-/* Button Styles */
 button {
-    width: 100%;
-    padding: 15px;
+    padding: 10px 20px;
     border: none;
-    border-radius: 30px;
-    background-color: #00796b;
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: bold;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: #fff;
     cursor: pointer;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    display: block;
 }
 
 button:hover {
-    background-color: #004d40;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    background-color: #0056b3;
 }
 
-/* Logout Button Specific Styles */
-#logoutButton {
-    background-color: #ff5722;
-    display: none; /* Ban đầu ẩn đi */
+#userInfo, #allUsersInfo {
+    margin-top: 20px;
+    white-space: pre-wrap;
 }
 
-#logoutButton.visible {
-    display: block; /* Hiển thị khi người dùng login */
+#navButtons {
+    margin-top: 20px;
 }
 
-/* Placeholder for stable layout */
-.placeholder {
-    height: 0;
-    visibility: hidden;
-}
-
-/* Responsive Design */
-@media (max-width: 400px) {
-    .login-container {
-        width: 90%;
-        padding: 20px;
-    }
-
-    h2 {
-        font-size: 20px;
-    }
-
-    input, button {
-        font-size: 14px;
-        padding: 12px;
-    }
+#navButtons button {
+    margin: 5px;
 }

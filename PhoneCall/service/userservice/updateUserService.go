@@ -64,17 +64,20 @@ func (userService *UserService) UpdateUserPasswordInfoById(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
+		handlers.LogDebug("id")
 		return
 	}
 
 	user := struct {
-		Password string `json:"password" gorm:"column:password" validate:"required,min=8,max=1000"`
+		OldPassword string `json:"old_password" validate:"required"`
+		NewPassword string `json:"new_password" validate:"required"`
 	}{}
 
 	if err = c.ShouldBind(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
+		handlers.LogDebug("SHOULD BIND")
 		return
 	}
 
@@ -84,6 +87,7 @@ func (userService *UserService) UpdateUserPasswordInfoById(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": validateErr.Error(),
 		})
+		handlers.LogDebug("Validate Err")
 		return
 	}
 
@@ -95,17 +99,37 @@ func (userService *UserService) UpdateUserPasswordInfoById(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "unauthorized to access this resource",
 		})
+		handlers.LogDebug("unauthorized to access this resource")
+		return
+	}
+
+	foundUser, err := userService.UserRepo.GetFullInfoUserById(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		handlers.LogDebug("Find User Err")
+		return
+	}
+
+	isValidPassword := userService.VerifyPassword(user.OldPassword, foundUser.Password)
+	if isValidPassword == false {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "password is incorrect",
+		})
+		handlers.LogErr("password is incorrect")
 		return
 	}
 
 	mp := map[string]interface{}{
-		"password": userService.HashPassword(user.Password),
+		"password": userService.HashPassword(user.NewPassword),
 	}
 	err = userService.UserRepo.UpdateValueFields(id, mp)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
+		handlers.LogDebug("Update User Err")
 		return
 	}
 	c.JSON(http.StatusOK, "updated password user successfully")

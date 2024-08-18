@@ -32,6 +32,7 @@ func (userService *UserService) Login() gin.HandlerFunc {
 			handlers.LogErr("Lỗi ở ShouldBind")
 			return
 		}
+
 		handlers.LogInfo(loginUserInfo.Email + " " + loginUserInfo.Password)
 		foundUser, err := userService.UserRepo.VerifyValueField("email", loginUserInfo.Email)
 		if err != nil {
@@ -52,6 +53,7 @@ func (userService *UserService) Login() gin.HandlerFunc {
 			handlers.LogErr("Email or password is incorrect")
 			return
 		}
+
 		// Khi người dùng đăng nhập lại thì gen ra token mới vì token cũ có thể hết hạn
 		token, refreshToken, _ := helpers.GenerateTokens(foundUser.Id, foundUser.Email, *foundUser.FirstName,
 			*foundUser.LastName, foundUser.UserType)
@@ -79,6 +81,9 @@ func (userService *UserService) Login() gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{
 			"access_token":  token,
 			"refresh_token": refreshToken,
+			"id_user":       foundUser.Id,
+			"info":          loginUserInfo.Password,
+			"found":         foundUser.Password,
 		})
 	}
 }
