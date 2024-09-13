@@ -1117,14 +1117,14 @@
 
     ```go
     func myFunction() error {
-        return errors.New("error")
+        return errors.New("errorpk")
     }
     ```
 - Tạo lỗi bằng error.Errorf cho các lỗi cần thêm thông tin
 
     ```go
     func myFunction() error {
-        return errors.Errorf("error %v", time.Now())
+        return errors.Errorf("errorpk %v", time.Now())
     }
     ```
 ##### b. So sánh lỗi
@@ -1184,7 +1184,7 @@
     }
 
     func inner() error {
-        return errors.New("inner error")
+        return errors.New("inner errorpk")
     }
 
     func main() {
@@ -1365,4 +1365,41 @@
     ```git
     git commit --amend -m"Thong diep"
     ```
+## D. Logging
+### I. Logging
+#### 1. Tổng quan
+- Logging trong phần mềm thường được chia thành nhiều loại dựa trên mức độ nghiêm trọng và mục đích sử dụng.
+#### 2. Một số loại logging phổ biến 
+- **Trace:** Dùng để ghi lại thông tin rất chi tiết về luồng hoạt động của chương trình, thường sử dụng để debug sâu hơn.
 
+- **Debug:** Ghi lại thông tin cần thiết để giúp debug, thường là các bước thực thi của chương trình.
+
+- **Info:** Ghi lại các thông tin bình thường về tiến trình của chương trình, không phải lỗi nhưng có giá trị theo dõi.
+
+- **Warn:** Ghi lại các cảnh báo, thể hiện rằng có điều gì đó không đúng nhưng chương trình vẫn có thể tiếp tục hoạt động.
+
+- **Error:** Ghi lại các lỗi, các vấn đề mà chương trình gặp phải nhưng vẫn có thể tiếp tục chạy.
+
+- **Fatal:** Ghi lại các lỗi nghiêm trọng khiến chương trình phải dừng lại.
+
+- **Panic:** Ghi lại các lỗi dẫn đến tình trạng khẩn cấp trong chương trình, có thể kết thúc chương trình và đưa ra stack trace.
+
+#### 3. Logrus
+- Ví dụ: 
+
+    ```go
+    package handlers
+
+    import (
+        log "github.com/sirupsen/logrus"
+        "runtime"
+    )
+
+    func LogErr(errMsg string) {
+        _, file, line, _ := runtime.Caller(1)
+        log.WithFields(log.Fields{
+            "file": file,
+            "line": line,
+        }).Error(errMsg)
+    }
+    ```

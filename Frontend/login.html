@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Function Page</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Login Form -->
+        <div id="loginSection">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <input type="text" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Login</button> 
+            </form>
+        </div>
+        
+        <!-- Get User Info -->
+        <div id="getUserSection" style="display:none;">
+            <h3>Get User Info</h3>
+            <form id="getUserForm">
+                <input type="text" id="userId" placeholder="User ID" required>
+                <button type="submit">Get User</button>
+                <button type="button" id="backGetUser">Back</button>
+            </form>
+            <div id="userInfo"></div>
+        </div>
+
+
+        <!-- Get All Users -->
+        <div id="getAllUsersSection" style="display:none;">
+            <button id="getAllUsersButton">Get All Users</button>
+            <button type="button" id="backGetUsers">Back</button>
+            <div id="allUsersInfo"></div>
+        </div>
+
+        <!-- Update User Info -->
+        <div id="updateUserSection" style="display:none;">
+            <h3>Update User Info</h3>
+            <form id="updateUserForm">
+                <input type="text" id="userIdUpdate" placeholder="User ID" required>
+                <input type="text" id="firstName" placeholder="First Name">
+                <input type="text" id="lastName" placeholder="Last Name">
+                <input type="email" id="emailUpdate" placeholder="Email">
+                <input type="text" id="phoneNumber" placeholder="Phone Number">
+                <button type="submit">Update User</button>
+                <button type="button" id="backUpdateUser">Back</button>
+            </form>
+        </div>
+
+        <div id="updatePasswordSection" style="display:none;">
+            <h3>Update User Info</h3>
+            <form id="updatePasswordForm">
+                <input type="text" id="userIdPassword" placeholder="User ID" required>
+                <input type="text" id="oldPassword" placeholder="Old Password">
+                <input type="text" id="newPassword" placeholder="New Password">
+                <button type="submit">Update Password</button>
+                <button type="button" id="backPassword">Back</button>
+            </form>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div id="navButtons" style="display:none;">
+            <button id="logoutButton">Logout</button>
+            <button id="showGetUser">Get User Info</button>
+            <button id="showGetAllUsers">Get All Users</button>
+            <button id="showUpdateUser">Update User Info</button>
+            <button id="showUpdatePassword">Update Password</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
